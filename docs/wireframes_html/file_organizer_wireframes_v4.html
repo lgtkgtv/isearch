@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Organizer UI Wireframes - Simplified</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .wireframe-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .wireframe-header {
+            background: #2563eb;
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .wireframe-content {
+            padding: 20px;
+        }
+
+        .window-frame {
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #fafafa;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .title-bar {
+            background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+            border-bottom: 1px solid #999;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #999;
+        }
+
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27ca3f; }
+
+        .menu-bar {
+            background: #e8e8e8;
+            border-bottom: 1px solid #ccc;
+            padding: 5px 15px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .menu-item {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .menu-item:hover {
+            background: #d0d0d0;
+        }
+
+        .toolbar {
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #999;
+            border-radius: 4px;
+            background: linear-gradient(to bottom, #fff, #e8e8e8);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to bottom, #f0f0f0, #d8d8d8);
+        }
+
+        .btn.primary {
+            background: linear-gradient(to bottom, #4285f4, #2563eb);
+            color: white;
+            border-color: #1d4ed8;
+        }
+
+        .search-panel {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ccc;
+            padding: 15px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .main-content {
+            display: flex;
+            height: 400px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+        }
+
+        .tree-view {
+            border: 1px solid #ccc;
+            background: white;
+            height: 300px;
+            overflow: auto;
+        }
+
+        .tree-header {
+            background: #e8e8e8;
+            border-bottom: 1px solid #ccc;
+            padding: 8px;
+            font-weight: bold;
+            display: flex;
+            gap: 10px;
+        }
+
+        .tree-row {
+            padding: 6px 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .tree-row:hover {
+            background: #f0f0f0;
+        }
+
+        .tree-row.selected {
+            background: #2563eb;
+            color: white;
+        }
+
+        .status-bar {
+            background: #e8e8e8;
+            border-top: 1px solid #ccc;
+            padding: 5px 15px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 16px;
+            border: 1px solid #999;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4ade80, #22c55e);
+            width: 65%;
+            transition: width 0.3s ease;
+        }
+
+        .dialog {
+            border: 2px solid #666;
+            border-radius: 6px;
+            background: white;
+            width: 500px;
+            margin: 50px auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .dialog-header {
+            background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+            border-bottom: 1px solid #999;
+            padding: 10px 15px;
+            font-weight: bold;
+        }
+
+        .dialog-content {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .list-box {
+            border: 1px solid #ccc;
+            height: 150px;
+            overflow: auto;
+            background: white;
+        }
+
+        .list-item {
+            padding: 5px 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .dialog-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            background: #666;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .folder-icon { background: #fbbf24; }
+        .file-icon { background: #60a5fa; }
+        .image-icon { background: #34d399; }
+        .video-icon { background: #f87171; }
+
+        .thumbnail-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .thumbnail-item {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+        }
+
+        .thumbnail-item:hover {
+            border-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .thumbnail {
+            width: 120px;
+            height: 90px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        .annotations {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .annotation-title {
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .annotation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .annotation-list li {
+            margin-bottom: 5px;
+            color: #78350f;
+        }
+
+        .hotkey {
+            background: #374151;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wireframe-container">
+    <div class="wireframe-header">
+        Main Application Window - File Organizer (Simplified)
+    </div>
+    <div class="wireframe-content">
+        <div class="window-frame">
+            <div class="title-bar">
+                <span>File Organizer - Untitled Project</span>
+                <div class="window-controls">
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                    <div class="control-btn close"></div>
+                </div>
+            </div>
+
+            <div class="menu-bar">
+                <div class="menu-item">File</div>
+                <div class="menu-item">Edit</div>
+                <div class="menu-item">View</div>
+                <div class="menu-item">Search</div>
+                <div class="menu-item">Tools</div>
+                <div class="menu-item">Help</div>
+            </div>
+
+            <div class="toolbar">
+                <button class="btn primary">
+                    <span class="icon folder-icon"></span>
+                    Configure Paths
+                </button>
+                <button class="btn">
+                    <span class="icon"></span>
+                    Refresh DB <span class="hotkey">Ctrl+Shift+R</span>
+                </button>
+                <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></div>
+                <button class="btn">Find Duplicates</button>
+                <button class="btn">Smart Analysis</button>
+                <button class="btn">Empty Folders</button>
+            </div>
+
+            <div class="search-panel">
+                <div class="search-row">
+                    <label>Search:</label>
+                    <input type="text" class="search-input" placeholder="Enter filename, path, or regex pattern...">
+                    <button class="btn primary">Search</button>
+                    <button class="btn">Clear</button>
+                </div>
+                <div class="filter-section">
+                    <label class="checkbox">
+                        <input type="checkbox"> Regex Mode
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox"> Full Path
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox"> Images Only
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox"> Videos Only
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox"> Documents Only
+                    </label>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="content-area">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span><strong>Search Results:</strong> 1,247 files found</span>
+                        <div>
+                            <button class="btn primary">List View</button>
+                            <button class="btn">Thumbnail View</button>
+                        </div>
+                    </div>
+
+                    <div class="tree-view">
+                        <div class="tree-header">
+                            <div style="width: 30px;">Type</div>
+                            <div style="flex: 3;">Filename</div>
+                            <div style="flex: 1;">Size</div>
+                            <div style="flex: 1;">Modified</div>
+                            <div style="flex: 3;">Location</div>
+                            <div style="width: 100px;">Actions</div>
+                        </div>
+                        <div class="tree-row selected">
+                            <div style="width: 30px;"><span class="icon image-icon"></span></div>
+                            <div style="flex: 3;">vacation_2024_beach.jpg</div>
+                            <div style="flex: 1;">2.4 MB</div>
+                            <div style="flex: 1;">2024-08-15</div>
+                            <div style="flex: 3;">/home/user/Pictures/Summer</div>
+                            <div style="width: 100px;"><button class="btn" style="font-size: 10px; padding: 2px 6px;">Open</button></div>
+                        </div>
+                        <div class="tree-row">
+                            <div style="width: 30px;"><span class="icon image-icon"></span></div>
+                            <div style="flex: 3;">IMG_20240815_beach_sunset.JPG</div>
+                            <div style="flex: 1;">3.1 MB</div>
+                            <div style="flex: 1;">2024-08-15</div>
+                            <div style="flex: 3;">/home/user/Photos/2024/August</div>
+                            <div style="width: 100px;"><button class="btn" style="font-size: 10px; padding: 2px 6px;">Open</button></div>
+                        </div>
+                        <div class="tree-row">
+                            <div style="width: 30px;"><span class="icon video-icon"></span></div>
+                            <div style="flex: 3;">beach_waves_video.mp4</div>
+                            <div style="flex: 1;">45.7 MB</div>
+                            <div style="flex: 1;">2024-08-15</div>
+                            <div style="flex: 3;">/home/user/Videos/Vacation</div>
+                            <div style="width: 100px;"><button class="btn" style="font-size: 10px; padding: 2px 6px;">Open</button></div>
+                        </div>
+                        <div class="tree-row">
+                            <div style="width: 30px;"><span class="icon file-icon"></span></div>
+                            <div style="flex: 3;">travel_itinerary_final.pdf</div>
+                            <div style="flex: 1;">157 KB</div>
+                            <div style="flex: 1;">2024-08-14</div>
+                            <div style="flex: 3;">/home/user/Documents/Travel/2024</div>
+                            <div style="width: 100px;"><button class="btn" style="font-size: 10px; padding: 2px 6px;">Open</button></div>
+                        </div>
+                        <div class="tree-row">
+                            <div style="width: 30px;"><span class="icon image-icon"></span></div>
+                            <div style="flex: 3;">family_dinner_group_photo.jpg</div>
+                            <div style="flex: 1;">4.2 MB</div>
+                            <div style="flex: 1;">2024-08-13</div>
+                            <div style="flex: 3;">/home/user/Pictures/Family/Events</div>
+                            <div style="width: 100px;"><button class="btn" style="font-size: 10px; padding: 2px 6px;">Open</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <span>Database: 23,847 files indexed | Last scan: 2024-09-12 14:30</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>Scanning...</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span>65%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="annotations">
+            <div class="annotation-title">Key Features - Simplified Main Window</div>
+            <ul class="annotation-list">
+                <li><strong>Clean Toolbar:</strong> Only essential functions - Configure Paths, Refresh DB, and analysis tools</li>
+                <li><strong>Search Panel:</strong> Comprehensive search with regex support and file type filters</li>
+                <li><strong>Full-Width Results:</strong> Maximum horizontal space for detailed file information</li>
+                <li><strong>Results Table:</strong> Sortable columns with file metadata and quick actions</li>
+                <li><strong>Status Bar:</strong> Database status and operation progress feedback</li>
+                <li><strong>Dual View Mode:</strong> Switch between detailed list and thumbnail grid views</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="wireframe-container">
+    <div class="wireframe-header">
+        Configuration Dialog - Directory Management
+    </div>
+    <div class="wireframe-content">
+        <div class="dialog">
+            <div class="dialog-header">
+                <div class="window-controls" style="float: right;">
+                    <div class="control-btn close"></div>
+                </div>
+                Configure Scan Directories
+            </div>
+            <div class="dialog-content">
+                <div class="form-group">
+                    <label class="form-label">Directories to Include:</label>
+                    <div class="list-box">
+                        <div class="list-item">
+                            <span><span class="icon folder-icon"></span> /home/user/Pictures</span>
+                            <button class="btn" style="padding: 2px 6px; font-size: 11px;">Remove</button>
+                        </div>
+                        <div class="list-item">
+                            <span><span class="icon folder-icon"></span> /home/user/Documents</span>
+                            <button class="btn" style="padding: 2px 6px; font-size: 11px;">Remove</button>
+                        </div>
+                        <div class="list-item">
+                            <span><span class="icon folder-icon"></span> /media/external/Photos</span>
+                            <button class="btn" style="padding: 2px 6px; font-size: 11px;">Remove</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn">Add Directory...</button>
+                        <button class="btn">Add Network Location...</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Exclude Patterns (one per line):</label>
+                    <textarea class="form-input" style="height: 80px;" placeholder="*.tmp&#10;*/.git/*&#10;*/node_modules/*"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox">
+                        <input type="checkbox" checked> Follow symbolic links
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" checked> Scan hidden files and directories
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox"> Calculate file hashes during scan
+                    </label>
+                </div>
+
+                <div class="dialog-buttons">
+                    <button class="btn">Cancel</button>
+                    <button class="btn primary">Save & Rescan</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="annotations">
+            <div class="annotation-title">Configuration Features</div>
+            <ul class="annotation-list">
+                <li><strong>Directory Management:</strong> Easy add/remove with visual feedback</li>
+                <li><strong>Pattern Exclusion:</strong> Glob patterns for filtering unwanted files</li>
+                <li><strong>Scan Options:</strong> Configurable behavior for links, hidden files, and hashing</li>
+                <li><strong>Immediate Action:</strong> Save & Rescan button triggers immediate database update</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="wireframe-container">
+    <div class="wireframe-header">
+        Duplicate Detection Results
+    </div>
+    <div class="wireframe-content">
+        <div class="window-frame">
+            <div class="title-bar">
+                <span>Duplicate Files Found - 234 files in 89 groups</span>
+                <div class="window-controls">
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                    <div class="control-btn close"></div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button class="btn">Select All Duplicates</button>
+                <button class="btn">Auto-Select (Keep Best)</button>
+                <button class="btn">Clear Selection</button>
+                <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></div>
+                <label>Detection Method:</label>
+                <select style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <option selected>File Hash (SHA-256)</option>
+                    <option>Name + Size</option>
+                    <option>Visual Similarity</option>
+                </select>
+                <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></div>
+                <span style="font-size: 12px;">Groups: 89 | Files: 234 | Wasted: 1.2 GB | Savings: 987 MB</span>
+                <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></div>
+                <button class="btn primary">Delete Selected</button>
+                <button class="btn">Move to Folder</button>
+                <button class="btn">Export List</button>
+            </div>
+
+            <div class="main-content" style="height: 500px;">
+                <div class="content-area">
+                    <div style="margin-bottom: 15px;">
+                        <h4>Duplicate Group 1 - beach_vacation.jpg (3 files, 8.7 MB total)</h4>
+                        <div class="thumbnail-view" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <div class="thumbnail-item" style="border-color: #22c55e;">
+                                <div class="thumbnail">Preview</div>
+                                <div style="font-size: 11px; margin-bottom: 5px;"><strong>KEEP</strong></div>
+                                <div style="font-size: 10px;">vacation_beach_2024.jpg</div>
+                                <div style="font-size: 10px;">3.1 MB • 2048x1536</div>
+                                <div style="font-size: 10px;">/Pictures/Vacation</div>
+                            </div>
+                            <div class="thumbnail-item" style="border-color: #ef4444;">
+                                <div class="thumbnail">Preview</div>
+                                <div style="font-size: 11px; margin-bottom: 5px; color: #ef4444;"><strong>DELETE</strong></div>
+                                <div style="font-size: 10px;">IMG_001.jpg</div>
+                                <div style="font-size: 10px;">2.8 MB • 1920x1440</div>
+                                <div style="font-size: 10px;">/Downloads</div>
+                            </div>
+                            <div class="thumbnail-item" style="border-color: #ef4444;">
+                                <div class="thumbnail">Preview</div>
+                                <div style="font-size: 11px; margin-bottom: 5px; color: #ef4444;"><strong>DELETE</strong></div>
+                                <div style="font-size: 10px;">beach.jpg</div>
+                                <div style="font-size: 10px;">2.8 MB • 1920x1440</div>
+                                <div style="font-size: 10px;">/tmp/photos</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <h4>Duplicate Group 2 - family_dinner.mov (2 files, 45.2 MB total)</h4>
+                        <div class="thumbnail-view" style="grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div class="thumbnail-item" style="border-color: #22c55e;">
+                                <div class="thumbnail">Video Preview</div>
+                                <div style="font-size: 11px; margin-bottom: 5px;"><strong>KEEP</strong></div>
+                                <div style="font-size: 10px;">family_dinner_2024.mov</div>
+                                <div style="font-size: 10px;">22.6 MB • 1080p • 2:34</div>
+                                <div style="font-size: 10px;">/Videos/Family</div>
+                            </div>
+                            <div class="thumbnail-item" style="border-color: #ef4444;">
+                                <div class="thumbnail">Video Preview</div>
+                                <div style="font-size: 11px; margin-bottom: 5px; color: #ef4444;"><strong>DELETE</strong></div>
+                                <div style="font-size: 10px;">VID_20240815.mov</div>
+                                <div style="font-size: 10px;">22.6 MB • 1080p • 2:34</div>
+                                <div style="font-size: 10px;">/Desktop</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <span>89 duplicate groups found • 147 files selected for deletion • 987 MB to be freed</span>
+                <span>Detection: SHA-256 Hash • Auto-selection: Keep files with descriptive names and best quality</span>
+            </div>
+        </div>
+
+        <div class="annotations">
+            <div class="annotation-title">Duplicate Detection Features</div>
+            <ul class="annotation-list">
+                <li><strong>Full-Width Display:</strong> Maximum space utilization for duplicate group visualization</li>
+                <li><strong>Toolbar Integration:</strong> Detection method and statistics in clean toolbar layout</li>
+                <li><strong>Visual Comparison:</strong> Thumbnail previews with metadata for informed decisions</li>
+                <li><strong>Smart Selection:</strong> Auto-select algorithm prioritizes descriptive names and quality</li>
+                <li><strong>Multiple Methods:</strong> Hash-based, size-based, and visual similarity detection</li>
+                <li><strong>Safe Operations:</strong> Clear visual indicators for keep/delete decisions</li>
+                <li><strong>Batch Actions:</strong> Select multiple groups and perform bulk operations</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="wireframe-container">
+    <div class="wireframe-header">
+        Thumbnail Grid View - Alternative Results Display
+    </div>
+    <div class="wireframe-content">
+        <div class="window-frame" style="min-height: 500px;">
+            <div class="title-bar">
+                <span>Search Results - Thumbnail View</span>
+                <div class="window-controls">
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                    <div class="control-btn close"></div>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button class="btn">Select All</button>
+                <button class="btn">Select None</button>
+                <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></div>
+                <button class="btn">Sort by Name</button>
+                <button class="btn">Sort by Date</button>
+                <button class="btn">Sort by Size</button>
+                <div style="border-left: 1px solid #ccc; height: 20px; margin: 0 10px;"></div>
+                <label>Thumbnail Size:</label>
+                <input type="range" min="100" max="300" value="150" style="width: 100px;">
+            </div>
+
+            <div class="thumbnail-view" style="height: 350px; overflow: auto;">
+                <div class="thumbnail-item">
+                    <input type="checkbox" style="position: absolute; top: 5px; left: 5px;">
+                    <div class="thumbnail">IMG Preview</div>
+                    <div style="font-size: 11px; font-weight: bold;">beach_sunset.jpg</div>
+                    <div style="font-size: 10px; color: #666;">2.4 MB • 2024-08-15</div>
+                </div>
+                <div class="thumbnail-item">
+                    <input type="checkbox" style="position: absolute; top: 5px; left: 5px;">
+                    <div class="thumbnail">IMG Preview</div>
+                    <div style="font-size: 11px; font-weight: bold;">family_photo.jpg</div>
+                    <div style="font-size: 10px; color: #666;">3.1 MB • 2024-08-12</div>
+                </div>
+                <div class="thumbnail-item">
+                    <input type="checkbox" style="position: absolute; top: 5px; left: 5px;">
+                    <div class="thumbnail">VID Preview</div>
+                    <div style="font-size: 11px; font-weight: bold;">vacation_highlights.mp4</div>
+                    <div style="font-size: 10px; color: #666;">45.7 MB • 2024-08-10</div>
+                </div>
+                <div class="thumbnail-item">
+                    <input type="checkbox" style="position: absolute; top: 5px; left: 5px;">
+                    <div class="thumbnail">IMG Preview</div>
+                    <div style="font-size: 11px; font-weight: bold;">mountain_hike.jpg</div>
+                    <div style="font-size: 10px; color: #666;">2.8 MB • 2024-08-08</div>
+                </div>
+                <div class="thumbnail-item">
+                    <input type="checkbox" style="position: absolute; top: 5px; left: 5px;">
+                    <div class="thumbnail">DOC Preview</div>
+                    <div style="font-size: 11px; font-weight: bold;">travel_itinerary.pdf</div>
+                    <div style="font-size: 10px; color: #666;">157 KB • 2024-08-05</div>
+                </div>
+                <div class="thumbnail-item">
+                    <input type="checkbox" style="position: absolute; top: 5px; left: 5px;">
+                    <div class="thumbnail">IMG Preview</div>
+                    <div style="font-size: 11px; font-weight: bold;">city_skyline.jpg</div>
+                    <div style="font-size: 10px; color: #666;">4.2 MB • 2024-08-03</div>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <span>1,247 files • 156 selected • 2.3 GB total size</span>
+                <span>View: Thumbnails (150px) • Page 1 of 42</span>
+            </div>
+        </div>
+
+        <div class="annotations">
+            <div class="annotation-title">Thumbnail View Features</div>
+            <ul class="annotation-list">
+                <li><strong>Visual Navigation:</strong> Quick visual scanning with thumbnail previews</li>
+                <li><strong>Batch Selection:</strong> Checkboxes for multi-file operations</li>
+                <li><strong>Flexible Sizing:</strong> Adjustable thumbnail size for different use cases</li>
+                <li><strong>Sorting Options:</strong> Multiple sort criteria for organized browsing</li>
+                <li><strong>Metadata Display:</strong> Essential file info visible without drilling down</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

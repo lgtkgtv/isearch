@@ -78,3 +78,24 @@ WINDOW_MIN_HEIGHT = 600
 # Search constants
 SEARCH_DEBOUNCE_MS = 300
 MAX_SEARCH_RESULTS = 10000
+
+
+# File type detection
+def get_file_type(extension: str) -> str:
+    """Determine file type from extension."""
+    ext_lower = extension.lower()
+
+    if ext_lower in IMAGE_EXTENSIONS:
+        return "image"
+    elif ext_lower in VIDEO_EXTENSIONS:
+        return "video"
+    elif ext_lower in DOCUMENT_EXTENSIONS:
+        return "document"
+    elif ext_lower in {".mp3", ".wav", ".flac", ".ogg", ".m4a", ".aac"}:
+        return "audio"
+    elif ext_lower in {".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"}:
+        return "archive"
+    elif ext_lower in {".py", ".js", ".html", ".css", ".cpp", ".c", ".java"}:
+        return "code"
+    else:
+        return "other"

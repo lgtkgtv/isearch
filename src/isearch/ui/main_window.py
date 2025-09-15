@@ -14,7 +14,7 @@ from gi.repository import Gtk, Gio, GLib  # noqa: E402
 from isearch.core.database import DatabaseManager  # noqa: E402
 from isearch.core.file_scanner import FileScanner  # noqa: E402
 from isearch.core.search_engine import SearchEngine, SearchFilters  # noqa: E402
-
+from isearch.ui.duplicate_window import DuplicateWindow  # noqa: E402
 from isearch.utils.config_manager import ConfigManager  # noqa: E402
 from isearch.utils.constants import (  # noqa: E402
     WINDOW_DEFAULT_WIDTH,
@@ -340,7 +340,8 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def _on_find_duplicates_clicked(self, button: Gtk.Button) -> None:
         """Handle find duplicates button click."""
-        self._find_duplicates()
+        duplicate_window = DuplicateWindow(self, self.db_manager)
+        duplicate_window.show()
 
     def _on_smart_analysis_clicked(self, button: Gtk.Button) -> None:
         """Handle smart analysis button click."""

@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from isearch.core.database import DatabaseManager
 from isearch.utils.constants import get_file_type
+from isearch.utils.file_utils import calculate_file_hash
 
 
 class FileScanner:
@@ -35,9 +36,20 @@ class FileScanner:
         follow_symlinks: bool = True,
         scan_hidden: bool = False,
         calculate_hashes: bool = False,
+        hash_strategy: str = "smart",
+        max_hash_size: int = 100 * 1024 * 1024,  # 100MB
     ) -> Dict[str, Any]:
         """
         Scan directories and update database.
+
+        Args:
+            directories: List of directory paths to scan
+            exclude_patterns: Glob patterns to exclude
+            follow_symlinks: Whether to follow symbolic links
+            scan_hidden: Whether to include hidden files
+            calculate_hashes: Whether to calculate file hashes
+            hash_strategy: Hash calculation strategy ("always", "smart", "selective")
+            max_hash_size: Maximum file size to hash (bytes)
 
         Returns:
             Dictionary with scan statistics
@@ -76,6 +88,8 @@ class FileScanner:
                     follow_symlinks,
                     scan_hidden,
                     calculate_hashes,
+                    hash_strategy,
+                    max_hash_size,
                     stats,
                 )
 
@@ -125,6 +139,8 @@ class FileScanner:
         follow_symlinks: bool,
         scan_hidden: bool,
         calculate_hashes: bool,
+        hash_strategy: str,
+        max_hash_size: int,
         stats: Dict[str, Any],
     ) -> None:
         """Recursively scan a directory."""
@@ -144,7 +160,9 @@ class FileScanner:
 
                 try:
                     if item.is_file():
-                        self._process_file(item, calculate_hashes, stats)
+                        self._process_file(
+                            item, calculate_hashes, hash_strategy, max_hash_size, stats
+                        )
                     elif item.is_dir():
                         # Handle symlinks
                         if item.is_symlink() and not follow_symlinks:
@@ -157,6 +175,8 @@ class FileScanner:
                             follow_symlinks,
                             scan_hidden,
                             calculate_hashes,
+                            hash_strategy,
+                            max_hash_size,
                             stats,
                         )
 
@@ -170,7 +190,12 @@ class FileScanner:
             stats["errors"] += 1
 
     def _process_file(
-        self, file_path: Path, calculate_hashes: bool, stats: Dict[str, Any]
+        self,
+        file_path: Path,
+        calculate_hashes: bool,
+        hash_strategy: str,
+        max_hash_size: int,
+        stats: Dict[str, Any],
     ) -> None:
         """Process a single file."""
         try:
@@ -197,9 +222,11 @@ class FileScanner:
                 "is_symlink": file_path.is_symlink(),
             }
 
-            # Calculate hash if requested
-            if calculate_hashes:
-                file_info["hash"] = self._calculate_file_hash(file_path)
+            # Calculate hash if requested and appropriate
+            if calculate_hashes and self._should_calculate_hash(
+                file_path, file_stat.st_size, hash_strategy, max_hash_size
+            ):
+                file_info["hash"] = self._calculate_file_hash(file_path, max_hash_size)
 
             # Check if file already exists in database
             existing = self.db_manager.get_file_by_path(str(file_path))
@@ -237,11 +264,110 @@ class FileScanner:
 
         return False
 
-    def _calculate_file_hash(self, file_path: Path) -> Optional[str]:
-        """Calculate SHA-256 hash of file (placeholder for now)."""
-        # TODO: Implement actual hashing in a future phase
-        # For now, return None to avoid performance impact
-        return None
+    def _should_calculate_hash(
+        self, file_path: Path, file_size: int, strategy: str, max_size: int
+    ) -> bool:
+        """Determine if hash should be calculated based on strategy."""
+
+        # Always skip empty files
+        if file_size == 0:
+            return True  # Empty files are quick to hash
+
+        # Check size limits
+        if file_size > max_size:
+            return False
+
+        if strategy == "always":
+            return True
+        elif strategy == "never":
+            return False
+        elif strategy == "smart":
+            return self._smart_hash_decision(file_path, file_size)
+        elif strategy == "selective":
+            return self._selective_hash_decision(file_path, file_size)
+        else:
+            # Default to smart strategy
+            return self._smart_hash_decision(file_path, file_size)
+
+    def _smart_hash_decision(self, file_path: Path, file_size: int) -> bool:
+        """Smart decision on whether to calculate hash."""
+
+        # Always hash smaller files (< 1MB)
+        if file_size < 1024 * 1024:
+            return True
+
+        # Hash media files that are commonly duplicated
+        media_extensions = {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".gif",
+            ".bmp",
+            ".tiff",
+            ".mp4",
+            ".avi",
+            ".mkv",
+            ".mov",
+            ".wmv",
+            ".flv",
+            ".mp3",
+            ".wav",
+            ".flac",
+            ".aac",
+            ".ogg",
+        }
+
+        if file_path.suffix.lower() in media_extensions:
+            return file_size < 50 * 1024 * 1024  # Hash media < 50MB
+
+        # Hash documents that might be duplicated
+        doc_extensions = {
+            ".pdf",
+            ".doc",
+            ".docx",
+            ".txt",
+            ".rtf",
+            ".odt",
+            ".xls",
+            ".xlsx",
+            ".ppt",
+            ".pptx",
+            ".csv",
+        }
+
+        if file_path.suffix.lower() in doc_extensions:
+            return file_size < 10 * 1024 * 1024  # Hash docs < 10MB
+
+        # Hash archives and compressed files
+        archive_extensions = {".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"}
+
+        if file_path.suffix.lower() in archive_extensions:
+            return file_size < 100 * 1024 * 1024  # Hash archives < 100MB
+
+        # Skip very large files by default
+        return file_size < 5 * 1024 * 1024  # Hash other files < 5MB
+
+    def _selective_hash_decision(self, file_path: Path, file_size: int) -> bool:
+        """Conservative hash calculation for specific file types only."""
+
+        # Only hash files that are commonly duplicated and relatively small
+        priority_extensions = {".jpg", ".jpeg", ".png", ".gif", ".pdf", ".mp3", ".mp4"}
+
+        if file_path.suffix.lower() in priority_extensions:
+            return file_size < 10 * 1024 * 1024  # Only files < 10MB
+
+        # Very small files of any type
+        return file_size < 100 * 1024  # Files < 100KB
+
+    def _calculate_file_hash(
+        self, file_path: Path, max_size: Optional[int] = None
+    ) -> Optional[str]:
+        """Calculate SHA-256 hash of file content using unified utility."""
+        # Use provided max_size or default to 100MB for FileScanner
+        if max_size is None:
+            max_size = 100 * 1024 * 1024  # 100MB
+
+        return calculate_file_hash(str(file_path), max_size)
 
     def quick_scan_directory(self, directory: Path) -> Dict[str, Any]:
         """Perform a quick scan to count files (for progress estimation)."""

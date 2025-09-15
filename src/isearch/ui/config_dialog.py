@@ -17,6 +17,10 @@ class ConfigDialog(Gtk.Dialog):
 
         self.config_manager = config_manager
         self.logger = logging.getLogger(__name__)
+        self.parent_window = parent
+
+        # Track original directories for change detection
+        self.original_directories = set(self.config_manager.get_scan_directories())
 
         # Dialog properties
         self.set_default_size(600, 400)
@@ -172,16 +176,27 @@ class ConfigDialog(Gtk.Dialog):
         )
 
     def _save_settings(self) -> None:
-        """Save settings from dialog."""
-        # Save directories
-        directories = []
+        """Save settings from dialog and synchronize database."""
+        # Get new directories from dialog
+        new_directories = []
         iter = self.dirs_store.get_iter_first()
         while iter:
             directory = self.dirs_store.get_value(iter, 0)
-            directories.append(directory)
+            new_directories.append(directory)
             iter = self.dirs_store.iter_next(iter)
 
-        self.config_manager.set_scan_directories(directories)
+        new_directories_set = set(new_directories)
+
+        # Detect changes
+        added_directories = new_directories_set - self.original_directories
+        removed_directories = self.original_directories - new_directories_set
+
+        print("📂 Directory changes detected:")
+        print(f"   ➕ Added: {list(added_directories)}")
+        print(f"   ➖ Removed: {list(removed_directories)}")
+
+        # Save configuration first
+        self.config_manager.set_scan_directories(new_directories)
 
         # Save exclude patterns
         buffer = self.patterns_view.get_buffer()
@@ -205,6 +220,10 @@ class ConfigDialog(Gtk.Dialog):
 
         # Save to file
         self.config_manager.save_config()
+
+        # Synchronize database if directories changed
+        if added_directories or removed_directories:
+            self._synchronize_database(added_directories, removed_directories)
 
     def _on_add_directory(self, button: Gtk.Button) -> None:
         """Handle add directory button."""
@@ -234,6 +253,106 @@ class ConfigDialog(Gtk.Dialog):
         model, iter = selection.get_selected()
         if iter:
             model.remove(iter)
+
+    def _synchronize_database(
+        self, added_directories: set, removed_directories: set
+    ) -> None:
+        """Synchronize database with directory changes."""
+        print("🔄 Synchronizing database with directory changes...")
+
+        try:
+            # Get database manager from parent window
+            if (
+                hasattr(self.parent_window, "db_manager")
+                and self.parent_window.db_manager
+            ):
+                db_manager = self.parent_window.db_manager
+            else:
+                print("   ❌ No database manager available")
+                return
+
+            # Remove files from removed directories
+            if removed_directories:
+                print(
+                    f"   🗑️  Removing files from {len(removed_directories)} "
+                    f"directories..."
+                )
+                for removed_dir in removed_directories:
+                    try:
+                        # Remove files that start with this directory path
+                        removed_count = db_manager.remove_files_by_directory(
+                            removed_dir
+                        )
+                        print(
+                            f"   ✅ Removed {removed_count} files from: {removed_dir}"
+                        )
+                    except Exception as e:
+                        print(f"   ❌ Error removing files from {removed_dir}: {e}")
+
+            # Scan new directories
+            if added_directories:
+                print(f"   📂 Scanning {len(added_directories)} new directories...")
+
+                # Import scanner here to avoid circular imports
+                from isearch.core.file_scanner import FileScanner
+
+                scanner = FileScanner(db_manager)
+
+                # Get scan options
+                follow_symlinks = self.follow_symlinks_check.get_active()
+                scan_hidden = self.scan_hidden_check.get_active()
+                exclude_patterns = [
+                    p.strip()
+                    for p in self.patterns_view.get_buffer()
+                    .get_text(
+                        self.patterns_view.get_buffer().get_start_iter(),
+                        self.patterns_view.get_buffer().get_end_iter(),
+                        False,
+                    )
+                    .split("\n")
+                    if p.strip()
+                ]
+
+                for added_dir in added_directories:
+                    try:
+                        print(f"   🔍 Scanning directory: {added_dir}")
+                        results = scanner.scan_directories(
+                            directories=[added_dir],
+                            exclude_patterns=exclude_patterns,
+                            follow_symlinks=follow_symlinks,
+                            scan_hidden=scan_hidden,
+                        )
+
+                        files_added = results.get("files_added", 0)
+                        files_updated = results.get("files_updated", 0)
+                        print(
+                            f"   ✅ Added {files_added} files, updated "
+                            f"{files_updated} from: {added_dir}"
+                        )
+
+                    except Exception as e:
+                        print(f"   ❌ Error scanning {added_dir}: {e}")
+
+            # Update parent window status
+            if (
+                hasattr(self.parent_window, "status_label")
+                and self.parent_window.status_label
+            ):
+                total_changes = len(added_directories) + len(removed_directories)
+                self.parent_window.status_label.set_text(
+                    f"Database synchronized: {total_changes} directory changes "
+                    f"processed"
+                )
+
+            print("   🎉 Database synchronization completed!")
+
+        except Exception as e:
+            print(f"   ❌ Database synchronization failed: {e}")
+            if (
+                hasattr(self.parent_window, "status_label")
+                and self.parent_window.status_label
+            ):
+                self.parent_window.status_label.set_text(f"Database sync failed: {e}")
 
     def run_and_save(self) -> bool:
         """Run dialog and save if OK was clicked."""

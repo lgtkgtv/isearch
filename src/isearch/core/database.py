@@ -43,6 +43,13 @@ class DatabaseManager:
                     file_type TEXT NOT NULL,
                     extension TEXT,
                     hash TEXT,
+                    perceptual_hash TEXT,
+                    average_hash TEXT,
+                    difference_hash TEXT,
+                    quality_score REAL DEFAULT 0.0,
+                    is_ai_enhanced BOOLEAN DEFAULT 0,
+                    ai_confidence REAL DEFAULT 0.0,
+                    media_analysis TEXT,
                     is_hidden BOOLEAN DEFAULT 0,
                     is_symlink BOOLEAN DEFAULT 0,
                     scan_date REAL DEFAULT (datetime('now')),
@@ -96,6 +103,22 @@ class DatabaseManager:
             """
             )
 
+            # CRITICAL: Hash index for duplicate detection performance
+            cursor.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_files_hash
+                ON files(hash)
+            """
+            )
+
+            # Composite index for size+name duplicate detection
+            cursor.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_files_size_filename
+                ON files(size, filename)
+            """
+            )
+
             # Create scan_sessions table for tracking scan operations
             cursor.execute(
                 """
@@ -142,8 +165,10 @@ class DatabaseManager:
                 INSERT OR REPLACE INTO files (
                     path, filename, directory, size, modified_date,
                     created_date, file_type, extension, hash,
+                    perceptual_hash, average_hash, difference_hash,
+                    quality_score, is_ai_enhanced, ai_confidence, media_analysis,
                     is_hidden, is_symlink, scan_date, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                     datetime('now'), datetime('now'))
             """,
                 (
@@ -156,6 +181,13 @@ class DatabaseManager:
                     file_info["file_type"],
                     file_info.get("extension", ""),
                     file_info.get("hash"),
+                    file_info.get("perceptual_hash"),
+                    file_info.get("average_hash"),
+                    file_info.get("difference_hash"),
+                    file_info.get("quality_score", 0.0),
+                    file_info.get("is_ai_enhanced", False),
+                    file_info.get("ai_confidence", 0.0),
+                    file_info.get("media_analysis"),
                     file_info.get("is_hidden", False),
                     file_info.get("is_symlink", False),
                 ),
@@ -171,6 +203,21 @@ class DatabaseManager:
             cursor.execute("SELECT * FROM files WHERE path = ?", (str(path),))
             row = cursor.fetchone()
             return dict(row) if row else None
+
+    def update_file_hash(self, path: Union[str, Path], hash_value: str) -> bool:
+        """Update hash for an existing file."""
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "UPDATE files SET hash = ?, updated_at = CURRENT_TIMESTAMP "
+                    "WHERE path = ?",
+                    (hash_value, str(path)),
+                )
+                return cursor.rowcount > 0
+        except Exception as e:
+            self.logger.error(f"Failed to update hash for {path}: {e}")
+            return False
 
     def search_files(
         self,
@@ -311,6 +358,56 @@ class DatabaseManager:
                 self.logger.info(f"Removed {removed_count} missing files")
 
             return removed_count
+
+    def remove_files_by_directory(self, directory_path: str) -> int:
+        """Remove all files from a specific directory from the database."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            # Normalize directory path (ensure it ends with /)
+            normalized_dir = directory_path.rstrip("/") + "/"
+
+            # Count files that will be removed
+            cursor.execute(
+                "SELECT COUNT(*) as count FROM files WHERE path LIKE ? "
+                "OR directory = ?",
+                (f"{normalized_dir}%", directory_path),
+            )
+            count_result = cursor.fetchone()
+            files_to_remove = count_result["count"] if count_result else 0
+
+            # Remove files
+            cursor.execute(
+                "DELETE FROM files WHERE path LIKE ? OR directory = ?",
+                (f"{normalized_dir}%", directory_path),
+            )
+
+            conn.commit()
+            if files_to_remove > 0:
+                self.logger.info(
+                    f"Removed {files_to_remove} files from directory: {directory_path}"
+                )
+
+            return files_to_remove
+
+    def remove_file_by_path(self, file_path: Union[str, Path]) -> bool:
+        """Remove a single file from the database by its path."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+
+            # Convert Path to string if needed
+            path_str = str(file_path)
+
+            # Remove the file
+            cursor.execute("DELETE FROM files WHERE path = ?", (path_str,))
+
+            conn.commit()
+            removed = cursor.rowcount > 0
+
+            if removed:
+                self.logger.info(f"Removed file from database: {path_str}")
+
+            return removed
 
     def start_scan_session(self, directories: List[str]) -> int:
         """Start a new scan session."""

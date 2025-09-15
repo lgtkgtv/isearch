@@ -200,22 +200,6 @@ class SearchEngine:
 
         return total_similarity
 
-    def _string_similarity(self, s1: str, s2: str) -> float:
-        """Calculate string similarity using simple ratio."""
-        if s1 == s2:
-            return 1.0
-        if len(s1) == 0 or len(s2) == 0:
-            return 0.0
-
-        # Simple character overlap ratio
-        set1 = set(s1)
-        set2 = set(s2)
-
-        intersection = len(set1.intersection(set2))
-        union = len(set1.union(set2))
-
-        return intersection / union if union > 0 else 0.0
-
     def get_search_suggestions(self, partial_query: str, limit: int = 10) -> List[str]:
         """Get search suggestions based on partial query."""
 
@@ -341,3 +325,9 @@ class SearchEngine:
         }
 
         return duplicates
+
+    def _string_similarity(self, s1: str, s2: str) -> float:
+        """Calculate string similarity using Levenshtein distance."""
+        from isearch.utils.file_utils import string_similarity
+
+        return string_similarity(s1, s2)

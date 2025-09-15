@@ -1,7 +1,7 @@
 # Core dependencies
-PyGObject>=3.42.0
+# PyGObject>=3.42.0  # Use system package: python3-gi (see CLAUDE.md)
 
-# Development dependencies (optional)
+# Development dependencies
 pytest>=7.0.0
 pytest-cov>=4.0.0
 black>=22.0.0

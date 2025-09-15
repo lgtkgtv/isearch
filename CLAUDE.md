@@ -14,15 +14,20 @@ iSearch is a GTK4-based intelligent file search and organization tool for Linux.
 uv venv .venv
 source .venv/bin/activate
 
-# Install dependencies
+# Install dependencies (PyGObject uses system package)
 uv pip install -r requirements.txt
 
-# Install development dependencies
-uv sync --dev
+# Alternative: Install development dependencies only
+# uv sync --dev
 
 # Set up pre-commit hooks
 uv run pre-commit install
 ```
+
+**System Dependencies Required:**
+- `python3-gi` (PyGObject - GTK4 Python bindings)
+- `gir1.2-gtk-4.0` (GTK4 introspection data)
+- These should be installed via system package manager, not pip/uv
 
 ### Running the Application
 ```bash

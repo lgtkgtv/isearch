@@ -94,7 +94,7 @@ class DuplicateWindow(Gtk.Window):
         method_label = Gtk.Label(label="Method:")
         toolbar.append(method_label)
 
-        # WORKAROUND: Use button-based method selector instead of problematic ComboBoxText
+        # WORKAROUND: Use button-based selector vs problematic ComboBoxText
         method_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
         # Create method buttons
@@ -305,7 +305,7 @@ class DuplicateWindow(Gtk.Window):
         method_text = combo.get_active_text()
         active_index = combo.get_active()
 
-        print(f"🔀 Method changed EVENT TRIGGERED:")
+        print("🔀 Method changed EVENT TRIGGERED:")
         print(f"   📋 Active Index: {active_index}")
         print(f"   🆔 Method ID: {method_id}")
         print(f"   📝 Method Text: {method_text}")
@@ -362,7 +362,7 @@ class DuplicateWindow(Gtk.Window):
             self.status_label.set_text(f"Switching to {method_text}...")
 
         # Add a small delay to prevent rapid switching issues
-        print(f"   ⏰ Scheduling duplicate loading in 100ms...")
+        print("   ⏰ Scheduling duplicate loading in 100ms...")
         GLib.timeout_add(
             100, lambda: self._load_duplicates(preserve_selection=current_group)
         )
@@ -404,16 +404,16 @@ class DuplicateWindow(Gtk.Window):
     def _check_combo_change_after_click(
         self, combo: Gtk.ComboBoxText, previous_method: str
     ) -> bool:
-        """Check if combo selection changed after a click and manually trigger change if needed."""
+        """Check if combo changed after click and trigger change if needed."""
         current_method = combo.get_active_id()
         print(f"🔍 Checking combo after click: {previous_method} → {current_method}")
 
         if current_method != previous_method:
-            print(f"   ✅ Method changed detected: triggering manual change event")
+            print("   ✅ Method changed detected: triggering manual change event")
             # Manually trigger the method change since the signal didn't fire
             self._manual_method_change(current_method)
         else:
-            print(f"   📋 No method change detected")
+            print("   📋 No method change detected")
 
         return False  # Don't repeat the timeout
 
@@ -468,7 +468,7 @@ class DuplicateWindow(Gtk.Window):
             self.status_label.set_text(f"Switching to {method_text}...")
 
         # Trigger the duplicate loading
-        print(f"   ⏰ Scheduling duplicate loading in 100ms...")
+        print("   ⏰ Scheduling duplicate loading in 100ms...")
         GLib.timeout_add(
             100, lambda: self._load_duplicates(preserve_selection=current_group)
         )
@@ -541,7 +541,7 @@ class DuplicateWindow(Gtk.Window):
                 method = active_id if active_id else "size_name"
                 print(f"   🔍 Using method: {method}")
 
-                # Get configured directories to filter duplicates to only configured paths
+                # Get configured directories to filter duplicates
                 configured_dirs = self._get_configured_directories()
                 duplicates = self.duplicate_detector.find_duplicates(
                     method=method, min_file_size=0, filter_directories=configured_dirs
@@ -730,7 +730,7 @@ class DuplicateWindow(Gtk.Window):
                 ]
             )
 
-            # IMPORTANT: Also update the selected_for_deletion set for auto-selected files
+            # Update selected_for_deletion set for auto-selected files
             if is_recommended_for_deletion:
                 self.selected_for_deletion.add(file_record["path"])
                 print(f"   ✅ Auto-selected for deletion: {file_record['filename']}")
@@ -766,7 +766,8 @@ class DuplicateWindow(Gtk.Window):
         if self.delete_button:
             has_selection = len(self.selected_for_deletion) > 0
             print(
-                f"   🗑️  Updating delete button: {len(self.selected_for_deletion)} files selected, enabled={has_selection}"
+                f"   🗑️  Updating delete button: "
+                f"{len(self.selected_for_deletion)} selected, enabled={has_selection}"
             )
 
             self.delete_button.set_sensitive(has_selection)
@@ -777,7 +778,7 @@ class DuplicateWindow(Gtk.Window):
                 print(f"   📝 Delete button label: '{label}'")
             else:
                 self.delete_button.set_label("Delete Selected")
-                print(f"   📝 Delete button label: 'Delete Selected' (disabled)")
+                print("   📝 Delete button label: 'Delete Selected' (disabled)")
 
     # Event handlers
     def _on_refresh_clicked(self, button: Gtk.Button) -> None:
@@ -804,7 +805,7 @@ class DuplicateWindow(Gtk.Window):
             self.status_label.set_text("Scanning directories for new files...")
 
         # For now, use some default directories to scan
-        # In a full implementation, this would get directories from config or show a dialog
+        # In full implementation, get directories from config or show dialog
         default_dirs = ["/tmp", "/home"]  # Safe directories for testing
 
         # Create file scanner
@@ -978,7 +979,8 @@ class DuplicateWindow(Gtk.Window):
         elif len(checked_files) > 1:
             # If multiple files are checked, use the first one but warn user
             print(
-                f"   ⚠️  Multiple files checked ({len(checked_files)}), using first: '{checked_files[0]}'"
+                f"   ⚠️  Multiple files checked ({len(checked_files)}), "
+                f"using first: '{checked_files[0]}'"
             )
             return checked_files[0]
 
@@ -1006,7 +1008,7 @@ class DuplicateWindow(Gtk.Window):
             import os
 
             if os.path.exists(file_path):
-                print(f"   ✅ File exists, attempting to open")
+                print("   ✅ File exists, attempting to open")
 
                 # Try multiple methods to open the file
                 open_commands = ["xdg-open", "open", "start"]
@@ -1035,12 +1037,15 @@ class DuplicateWindow(Gtk.Window):
                         continue
 
                 if not success:
-                    print(f"   ❌ No suitable file opener found")
-                    message = f"File opener not available - file exists: {os.path.basename(file_path)}"
+                    print("   ❌ No suitable file opener found")
+                    message = (
+                        f"File opener not available - file exists: "
+                        f"{os.path.basename(file_path)}"
+                    )
                     if self.status_label:
                         self.status_label.set_text(message)
             else:
-                print(f"   ❌ File does not exist")
+                print("   ❌ File does not exist")
                 message = f"File not found: {file_path}"
                 print(f"   ⚠️  {message}")
                 if self.status_label:
@@ -1120,12 +1125,12 @@ class DuplicateWindow(Gtk.Window):
                         continue
 
                 if not success:
-                    print(f"   ❌ No suitable folder opener found")
+                    print("   ❌ No suitable folder opener found")
                     message = f"File manager not available - folder exists: {directory}"
                     if self.status_label:
                         self.status_label.set_text(message)
             else:
-                print(f"   ❌ File does not exist")
+                print("   ❌ File does not exist")
                 message = f"File not found: {file_path}"
                 print(f"   ⚠️  {message}")
                 if self.status_label:
@@ -1171,7 +1176,7 @@ class DuplicateWindow(Gtk.Window):
             secondary_text = (
                 f"Selected file: {file_path}\n\n{description}\n\n"
                 "This is test/demo data with fictional file paths. "
-                "In a real application, this would work with actual files on your system."
+                "In real application, this would work with actual files."
             )
 
             # GTK4 way to set secondary text
@@ -1302,7 +1307,7 @@ class DuplicateWindow(Gtk.Window):
 
                 # Show detailed error information for failed files
                 if failed_files:
-                    print(f"\n📋 Deletion Summary:")
+                    print("\n📋 Deletion Summary:")
                     print(f"   ✅ Successfully deleted: {deleted_count}")
                     print(f"   ❌ Failed to delete: {failed_count}")
                     if len(failed_files) <= 5:  # Show details for first 5 failures
@@ -1390,7 +1395,7 @@ class DuplicateWindow(Gtk.Window):
         # Manage action buttons based on state and selections
         if enabled:
             # When UI is enabled, use the actual selection state for delete button
-            self._update_delete_button()  # This will set delete button based on selections
+            self._update_delete_button()  # Set delete button based on selections
             if self.auto_select_button:
                 self.auto_select_button.set_sensitive(True)
         else:

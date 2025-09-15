@@ -29,7 +29,7 @@ class DuplicateDetector:
             method: Detection method ("size_name", "hash", "smart", "exact_content")
             min_file_size: Minimum file size to consider
             size_tolerance: Size difference tolerance (0.0 to 1.0)
-            filter_directories: List of directories to limit search to (None = all directories)
+            filter_directories: List of directories to limit search to
 
         Returns:
             Dictionary mapping group keys to lists of duplicate files
@@ -44,7 +44,8 @@ class DuplicateDetector:
                 all_files, filter_directories
             )
             print(
-                f"🔍 Filtered {len(all_files)} files to {len(filtered_files)} files in configured directories"
+                f"🔍 Filtered {len(all_files)} files to {len(filtered_files)} "
+                f"files in configured directories"
             )
             all_files = filtered_files
 
@@ -96,7 +97,8 @@ class DuplicateDetector:
                 files_needing_hashes.append(file_record)
 
         self.logger.info(
-            f"Using {len(files_with_hashes)} pre-computed hashes, calculating {len(files_needing_hashes)} new hashes"
+            f"Using {len(files_with_hashes)} pre-computed hashes, "
+            f"calculating {len(files_needing_hashes)} new hashes"
         )
 
         # Calculate hashes for files that don't have them (with progress feedback)

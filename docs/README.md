@@ -28,9 +28,21 @@ A GTK4-based application for managing, searching, and organizing large collectio
 git clone https://github.com/lgtkgtv/isearch.git
 cd isearch
 
+# Install PyGObject and GTK4 packages
+sudo apt update
+sudo apt install -y \
+    python3-gi \
+    python3-gi-cairo \
+    gir1.2-gtk-4.0 \
+    libgtk-4-dev \
+    libgirepository1.0-dev \
+    libcairo2-dev \
+    pkg-config \
+    python3-dev
+
 # Create virtual environment with uv
-uv venv venv
-source venv/bin/activate
+uv venv .venv --python python3.12 --system-site-packages
+source .venv/bin/activate
 
 # Install dependencies
 uv pip install -r requirements.txt
